@@ -15,7 +15,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Import experiment modules
-from experiments.main_results import run_main_results_experiment
+from experiments.main_results import run_main_results_experiment, run_tuned_proposed_experiment
 from experiments.ablation_study import run_ablation_experiment
 from experiments.co_availability_eval import run_co_availability_experiment, run_isolated_correlated_experiment
 from experiments.threshold_sensitivity import run_threshold_sensitivity_experiment
@@ -110,6 +110,10 @@ def main():
     print("Running Experiment 1b: Main results with cloud recovery for baselines (equal cloud access)...")
     df1b = run_main_results_experiment(num_seeds=seeds_main, cloud_baselines=True)
     save_and_print_table(df1b, "1b", "Main results with equal cloud access. Values are mean ± 95% CI.", "main_results_equal_cloud")
+
+    print("Running Experiment 1c: Proposed with thresholds chosen from Table 5 (out-of-sample seeds)...")
+    df1c = run_tuned_proposed_experiment(num_seeds=seeds_main)
+    save_and_print_table(df1c, "1c", "Proposed scheduler at the tuned operating point.", "proposed_tuned")
 
     # ----------------------------------------------------
     # Table 2: Ablation Study

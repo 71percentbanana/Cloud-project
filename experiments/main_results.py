@@ -64,3 +64,28 @@ def run_main_results_experiment(num_seeds: int = 300, num_devices: int = 30, num
             
     df = pd.DataFrame(rows)
     return df
+
+
+def run_tuned_proposed_experiment(num_seeds: int = 300, num_devices: int = 30, r2: float = 0.40, r3: float = 0.70) -> pd.DataFrame:
+    """
+    Evaluate the proposed scheduler with hedging thresholds chosen from the threshold-sensitivity
+    experiment. That experiment uses a separate seed range (5000+), so this run on the main seeds
+    (1000+) is an out-of-sample check of the chosen operating point.
+    """
+    from src.config import ExecutionThresholds
+    rows = []
+    for cond in ["Stable", "Moderate", "High"]:
+        sched = AdaptiveStabilityScheduler(thresholds=ExecutionThresholds(R1=0.05, R2=r2, R3=r3))
+        summary = run_seeds(sched, cond.lower(), num_devices, seed_offset=1000, num_seeds=num_seeds).summarize()
+        rows.append({
+            "Condition": cond,
+            "Method": f"Proposed (R2={r2:.2f}, R3={r3:.2f})",
+            "Deadline_Mean": summary['deadline_pct'].mean,
+            "Deadline_CI95": summary['deadline_pct'].ci95,
+            "WastedCPU_Mean": summary['wasted_cpu'].mean,
+            "WastedCPU_CI95": summary['wasted_cpu'].ci95,
+            "Cloud_Mean": summary['cloud_inst_sec'].mean,
+            "Cloud_CI95": summary['cloud_inst_sec'].ci95,
+            "Replicas_Mean": summary['replica_launches'].mean,
+        })
+    return pd.DataFrame(rows)
